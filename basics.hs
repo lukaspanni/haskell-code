@@ -17,6 +17,12 @@ testFilterLesser list x = filter (< x) list
 testFilterGreater list x = filter (> x) list
 
 -- list stuff
+
+
+-- pattern matching with ++ (e.g. fun (xs ++ ys) = xs) not possible because it is ambiguous
+-- fun [1,2,3] could match xs=[], ys=[1,2,3] | xs=[1], ys=[2,3] | xs=[1,2], ys=[3] | ...
+
+
 squareMap = map(^2)
 --squareMap = let square x = x*x
 --  in map square
@@ -29,6 +35,8 @@ squareMap = map(^2)
 myZip _ [] = []
 myZip [] _ = []
 myZip (x:xs) (y:ys) = (x,y):(myZip xs ys)
+
+flatten xss = [x | xs <- xss, x <- xs]  
 
 
 incAllPositive xs = [(+1) x | x <- xs, x > 0] 
@@ -50,6 +58,8 @@ squareList x = squareMap (createList x)
 listSum [] = 0
 listSum (x:xs) = x + listSum xs
 
+foldListSum xs = foldl (+) 0 xs
+
 listProduct xs
   | null xs = 1
   | otherwise = head xs * listProduct xs
@@ -65,6 +75,7 @@ avg xs = (listSum xs) / (len xs)
 fib x 
   | x<=1        = 1
   | otherwise   = fib (x-1) + fib (x-2)
+
 
 
 data ProgrammingLanguage = Haskell | Java | C deriving Show
@@ -102,7 +113,6 @@ inc4 = inc 4
 
 apply f x = f x
 dec = apply (\x -> x - 1)
-
 
 
 main = do {
