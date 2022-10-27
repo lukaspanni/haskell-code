@@ -18,9 +18,9 @@ toHex Green = "00ff00"
 toHex Blue = "0000ff"
 
 
-data ProgrammingLanguages = Haskell | C deriving (Eq)
+data ProgrammingLanguage = Haskell | C deriving (Eq)
 
-instance Ord ProgrammingLanguages where 
+instance Ord ProgrammingLanguage where 
   C <= Haskell = True
   Haskell <= C = False
 
@@ -29,8 +29,8 @@ instance Ord ProgrammingLanguages where
 -- -> constructors with parametric arguments (a,b,...) -> any type, same type on the other side
 -- data Maybe a = Just a | Nothing => just the same type as input or nothing
 -- data Either a b = Left a | Right b => one of those types
-type Result = Either Int String -- => result is an integer or a string (on failure)
-failSafeDiv :: Int -> Int -> Result
+type Result = Either Integer String -- => result is an integer or a string (on failure)
+failSafeDiv :: Integer -> Integer -> Result
 failSafeDiv n 0 = Right "division by zero"
 failSafeDiv n m = Left (n `div` m)
 
@@ -73,4 +73,29 @@ convertBack [] = Null
 convertBack (x:xs) = Cons x (convertBack xs)
 
 
+data TestType = A Integer | B String deriving (Eq, Show)
 
+testFun :: TestType -> Either Integer String
+testFun (A x) = Left x
+testFun (B x) = Right x
+
+isLeft :: Either a b -> Bool
+isLeft (Left _) = True 
+isLeft (Right _) = False
+
+betterDiv :: Integer -> Integer -> Integer
+betterDiv x y = extractValue  (failSafeDiv x y)
+  where
+    extractValue :: Result -> Integer
+    extractValue (Left x) = x
+    extractValue _ = 0
+
+
+
+class FileExtension a where
+  fileExtension :: a -> String
+
+
+instance FileExtension ProgrammingLanguage where
+  fileExtension Haskell = ".hs"
+  fileExtension C = ".c"
