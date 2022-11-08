@@ -25,6 +25,15 @@ instance Functor LinkedList where
   fmap f Null = Null
   fmap f (Node a n) = Node (f a) (fmap f n)
 
+reverseList :: LinkedList a -> LinkedList a
+reverseList Null = Null
+reverseList (Node a n) = append (reverseList n) (Node a Null)
+
+append :: LinkedList a -> LinkedList a -> LinkedList a
+append Null n = n
+append n Null = n
+append (Node a Null) list = Node a list
+append (Node a n) list = Node a (append n list)
 
 toList :: LinkedList a -> [a]
 toList Null = []
@@ -54,3 +63,22 @@ filterList p (Node a n)
   | otherwise = filterList p n
 
 
+quicksort :: Ord a => LinkedList a -> LinkedList a
+quicksort Null = Null
+quicksort (Node a n) = (quicksort smallerOrEqual) `append` ((Node a Null) `append` (quicksort larger))
+  where 
+    larger = filterList (> a) n
+    smallerOrEqual = filterList (<= a) n
+
+
+binarySearch :: Ord a => [a] -> a -> Int
+binarySearch xs v = binarySearchInternal xs v 0 ((length xs)-1)
+
+binarySearchInternal :: Ord a => [a] -> a -> Int -> Int -> Int
+binarySearchInternal xs v lower higher
+  | mid < 0 || mid == (length xs) || lower == higher = -1
+  | v == xs!!mid = mid
+  | v >= xs!!mid = binarySearchInternal xs v (mid+1) higher
+  | otherwise = binarySearchInternal xs v lower (mid-1)
+  where 
+    mid = lower + ((higher - lower) `div` 2)
