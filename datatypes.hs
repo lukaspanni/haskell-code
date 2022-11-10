@@ -1,3 +1,5 @@
+ {-# LANGUAGE ExistentialQuantification #-}
+
 -- Enumerations
 data RGBColor = Red
   | Green
@@ -99,3 +101,33 @@ class FileExtension a where
 instance FileExtension ProgrammingLanguage where
   fileExtension Haskell = ".hs"
   fileExtension C = ".c"
+
+
+
+data Square = Square Int deriving (Show)
+data Rectangle = Rec { len :: Int, width :: Int} deriving (Show)
+
+class Show a => GeoShape a where
+  area :: a -> Int 
+  scale :: a -> Int -> a
+
+instance GeoShape Square where
+  area (Square s) = s*s
+  scale (Square s) x = Square (x*s)
+
+instance GeoShape Rectangle where
+  area r = len r * width r
+  scale r x = Rec {len = len r * x, width = width r * x} 
+
+data Shape = forall a. GeoShape a => MkShape a
+
+instance Show Shape where
+  show (MkShape a) = show a
+
+instance GeoShape Shape where
+  area (MkShape a) = area a
+  scale (MkShape a) s = MkShape (scale a s)
+
+shapeList = [MkShape (Square 10), MkShape (Rec 5 10)]
+
+

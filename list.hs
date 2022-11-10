@@ -82,3 +82,17 @@ binarySearchInternal xs v lower higher
   | otherwise = binarySearchInternal xs v lower (mid-1)
   where 
     mid = lower + ((higher - lower) `div` 2)
+
+
+binarySearch2 :: Ord a => [(a, b)] -> a -> b
+binarySearch2 [(a, b)] s = b
+binarySearch2 ls s
+  | index midElem == s = val midElem
+  | index midElem <= s = binarySearch2 (drop mid ls) s
+  | otherwise = binarySearch2 (take mid ls) s
+  where
+    mid = (length ls) `div` 2
+    index (i,_) = i
+    val (_,v) = v
+    midElem = ls!!mid
+
