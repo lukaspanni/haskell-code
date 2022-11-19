@@ -38,3 +38,12 @@ countIf _ [] = 0
 countIf pred (x:xs) = (countIf pred xs) + inc
   where
     inc = if pred x then 1 else 0
+
+flatten2 :: [[a]] -> [a]
+flatten2 [] = []
+flatten2 (xs:xss) = (flattenInternal xs) ++ (flatten2 xss) 
+  where 
+    flattenInternal [] = []
+    flattenInternal (x:xs) = x:(flattenInternal xs)
+
+
