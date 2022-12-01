@@ -34,6 +34,10 @@ selectTable t p = select (simplify t) p
 
 
 getProductsFromOrder :: FullDB -> Int -> [ProductRow]
-getProductsFromOrder (Database _ products orders orderItems) oid = selectTable products (\(Product (id, _, _)) -> (elem id orderItemIds))
+getProductsFromOrder (Database _ products _ orderItems) oid = selectTable products (\(Product (id, _, _)) -> (elem id orderItemIds))
   where
     orderItemIds = map (\(OrderItem (_, _, pid, _, _)) -> pid) $ selectTable orderItems (\(OrderItem (id, oid1, _, _, _)) -> oid1 == oid)
+
+
+--getOrderSum :: FullDB -> Int -> Float
+getOrderSum (Database _ _ _ orderItems) oid = sum $ map (\(OrderItem (_,_,_,a,p)) -> (fromIntegral a) * p) $ selectTable orderItems (\(OrderItem (id, oid1, _, _, _)) -> oid1 == oid)

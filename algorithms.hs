@@ -10,8 +10,6 @@ mergesort xs = merge (mergesort left) (mergesort right)
   where
     (left,right) = split xs
 
-
-
 merge [] ys = ys
 merge xs [] = xs
 merge (x:xs) (y:ys)
@@ -24,7 +22,31 @@ split xs = (left, right)
     right = drop size xs
     size = (length xs) `div` 2
 
+splitProp :: Eq a => [a] -> Bool
+splitProp xs = xs == (combine $ split xs)
+  where
+    combine (left, right) = left ++ right
 
+insertionsort xs = insertionsort' [] xs
+  where
+    insertionsort' xs [] = xs
+    insertionsort' [] (y:ys) = insertionsort' [y] ys 
+    insertionsort' (x:xs) (y:ys)
+      | y <= x = insertionsort' (y:x:xs) ys 
+      | otherwise = insertionsort' (x:(insertionsort' xs [y])) ys
+
+
+sortProp :: Ord a => ([a] -> [a]) -> [a] -> Bool
+sortProp f ls = ordered $ f ls
+  where
+    ordered [] = True
+    ordered [x] = True
+    ordered (x:xs)
+      | x > (head xs) = False
+      | x <=(head xs) = True && ordered xs
+
+
+flatten xss = [x | xs <- xss, x <- xss]
 
 count [] = 0
 count (x:xs) = (count xs) + 1
