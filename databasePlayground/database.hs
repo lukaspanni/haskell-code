@@ -41,3 +41,29 @@ getProductsFromOrder (Database _ products _ orderItems) oid = selectTable produc
 
 --getOrderSum :: FullDB -> Int -> Float
 getOrderSum (Database _ _ _ orderItems) oid = sum $ map (\(OrderItem (_,_,_,a,p)) -> (fromIntegral a) * p) $ selectTable orderItems (\(OrderItem (id, oid1, _, _, _)) -> oid1 == oid)
+
+
+
+placeOrder :: FullDB -> Int -> [(Int,Int)] -> FullDB
+placeOrder (Database users products orders orderItems) uid items
+  | (length items == 0) = (Database users products orders orderItems)
+  | selectTable users (\(User (id, _, _)) -> id == uid) == [] = (Database users products orders orderItems)
+  | otherwise = Database users products (updatedOrders $ simplify orders) (updatedOrderItems (simplify orderItems) (maxOrderId (simplify orders))) 
+  where
+    updatedOrders :: [OrderRow] -> OrderTable
+    updatedOrders orders = OrderTable (Order ((maxOrderId orders)+1, uid):orders)
+    
+    updatedOrderItems :: [OrderItemRow] -> Int -> OrderItemTable
+    updatedOrderItems orderItems oid = OrderItemTable (insertOrderItems orderItems items (oid+1))
+    
+    maxOrderId [] = 0
+    maxOrderId ((Order (id, _)):xs) = max id (maxOrderId xs)
+        
+    insertOrderItems :: [OrderItemRow] -> [(Int, Int)] -> Int -> [OrderItemRow] 
+    insertOrderItems xs [] _ = xs
+    insertOrderItems xs ((pid, amount):ys) oid = insertOrderItems (OrderItem ((maxOrderItemId xs)+1, oid, pid, amount, (getProductPrice pid)):xs) ys oid
+          where
+            maxOrderItemId [] = 0
+            maxOrderItemId ((OrderItem (id, _, _, _, _)):xs) = max id (maxOrderItemId xs)
+
+            getProductPrice pid = (map (\(Product (id, _, p)) -> p) $ selectTable products (\(Product (id, _, p)) -> id == pid)) !! 0
