@@ -67,3 +67,23 @@ placeOrder (Database users products orders orderItems) uid items
             maxOrderItemId ((OrderItem (id, _, _, _, _)):xs) = max id (maxOrderItemId xs)
 
             getProductPrice pid = (map (\(Product (id, _, p)) -> p) $ selectTable products (\(Product (id, _, p)) -> id == pid)) !! 0
+
+
+getMostValuableCustomer :: FullDB -> UserRow
+getMostValuableCustomer (Database users products orders orderItems) = maxValueCustomer (map (\(User (id, _, _)) -> (id, (getTotalSum id))) $ simplify users)
+  where
+    maxValueCustomer :: [(Int, Float)] -> UserRow
+    maxValueCustomer [(id, sum)] = selectTable users (\(User (id1, _, _)) -> id1 == id) !! 0
+    maxValueCustomer xs = maxValueCustomer' xs 0 0
+      where
+        maxValueCustomer' ((id, sum):xs) currentMax currentId
+          | sum > currentMax = maxValueCustomer' xs sum id
+          | otherwise = maxValueCustomer' xs currentMax currentId 
+    getTotalSum :: Int -> Float
+    getTotalSum uid =  sum $ map (\(Order (id, _)) -> (getOrderSum fullDb id)) (getOrders uid)
+    fullDb = Database users products orders orderItems -- makes calling getOrderSum easier
+    getOrders :: Int -> [OrderRow]
+    getOrders uid = selectTable orders (\(Order (id, uid1)) -> uid1 == uid)
+  
+
+
