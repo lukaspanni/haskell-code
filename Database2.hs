@@ -37,11 +37,14 @@ hasDuplicates :: Eq a => [a] -> Bool
 hasDuplicates [] = False
 hasDuplicates (x:xs) = elem x xs || hasDuplicates xs
 
+hasNoDuplicates xs = not $ hasDuplicates xs
+
 valid :: DB -> Bool
 valid db = (noDuplicateStudentIds db) && (allStudentsValid db)
   where
-    noDuplicateStudentIds db = not (hasDuplicates (map (\(_, id, _) -> id) db))
-    allStudentsValid db = all (==True) [not (hasDuplicates cs) | (_,_,cs) <- db]
+    noDuplicateStudentIds db = hasNoDuplicates (map (\(_, id, _) -> id) db)
+    allStudentsValid db = all (==True) [hasNoDuplicates cs | (_,_,cs) <- db]
+
 
 -- EXTENSION TO TASK 0
 {-
@@ -65,7 +68,7 @@ courses of this particular student.
 -}
 query1 :: DB -> Integer -> [Integer]
 query1 db id = [cs | (_,i,cs) <- db, i==id]!!0
-
+query1' db id = [c | (n,i,cs) <- db, i==id, c<-cs]
 -- TASK 2
 {-
 Given a database and a course, find all students
@@ -73,7 +76,6 @@ taking this course.
 -}
 query2 :: DB -> Integer -> [String]
 query2 db c = [n | (n,_,cs) <- db, elem c cs]
-
 
 -- TASK 3
 {-
@@ -173,4 +175,20 @@ insertMerge db (n2,i2,cs2)
   | otherwise = [(n,i,(mergeCourses cs cs2)) | (n,i,cs) <- db, i == i2]++others
   where 
     others = [(n,i,cs) | (n,i,cs) <- db, i /= i2]
+
+
+removeDuplicates [] = []
+removeDuplicates (x:xs)
+  | elem x xs = removeDuplicates xs
+  | otherwise = x:removeDuplicates xs
+
+merge3 :: DB -> DB -> DB 
+merge3 db [] = db 
+merge3 db (x:xs) = merge (mergeStudent db x) xs
+  where
+    mergeStudent [] x = [x]
+    mergeStudent ((n,i,cs):xs) (n2,i2,cs2)
+      | i == i2 = (n,i,(removeDuplicates (cs2++cs))):xs
+      | otherwise = (n,i,cs):(mergeStudent xs (n2,i2,cs2))
+
 
