@@ -17,7 +17,10 @@ overallCost (x:xs) = (productCost x) + overallCost xs
 -- overallCost ps = foldl (\acc -> \(_,q,p) -> acc+ (p*q)) 0 ps
 
 decProduct :: ProductList -> ProductName -> (ProductList, ProductList)
-decProduct ls n = ([ (x1,x2,x3) | (x1,x2,x3) <- ls, x1 == n ], [ (x1,x2-1,x3) | (x1,x2,x3) <- ls, x1 == n, x2-1==0 ])
+decProduct ls n = (all, zeroStock)
+  where
+    all = [if n1==n then (n,s-1,p) else (n1,s,p) | (n1,s,p) <- ls]
+    zeroStock = filter (\(n1,s,p) -> s==0) all
 
 updatePrice :: ProductName -> ProductPrice -> ProductList -> ProductList
 updatePrice n p ls = map (upPrice n p) ls
@@ -50,4 +53,10 @@ combineProductList ((x1,x2,x3):xs) ys = combineProduct (x1,x2,x3) ys ++ combineP
     filteredYs = filter (\(y1,_,_) -> not (y1 ==x1)) ys
 
 
-
+combineProductList' xs [] = xs
+combineProductList' xs (y:ys) = combineProductList (insert xs y) ys
+  where
+    insert [] y = [y]
+    insert ((n1,s1,p1):xs) (n2,s2,p2)
+      | n1 == n2 = (n1, s1+s2, (max p1 p2)):xs
+      | otherwise = (n1,s2,p1):(insert xs y)

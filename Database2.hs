@@ -191,4 +191,12 @@ merge3 db (x:xs) = merge (mergeStudent db x) xs
       | i == i2 = (n,i,(removeDuplicates (cs2++cs))):xs
       | otherwise = (n,i,cs):(mergeStudent xs (n2,i2,cs2))
 
+merge4 :: DB -> DB -> DB
+merge4 xs [] = xs
+merge4 xs (y:ys) = merge4 (insert xs y) ys
+  where
+    insert xs (n,i,cs)  
+      | hasStudent xs n = map (\(n1,i1,cs1) -> if n1==n then (n1,i, (removeDuplicates (cs++cs1))) else (n1, i1, cs1) ) xs
+      | otherwise = (n,i,cs):xs
+    hasStudent xs n = (length $ filter (\(n1,_,_) -> n == n1) xs) > 0
 
