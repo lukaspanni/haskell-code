@@ -35,7 +35,7 @@ factorize x
 
 getFactors x = filter (\y -> isInt ((fromIntegral x)/(fromIntegral y))) (genPrimes x)
 
-getNumberOfDividers = foldl (\z x -> z*x) 1 . map (\(a,b) -> b+1) . counts . factorize
+getNumberOfDividers = foldl (*) 1 . map (\(a,b) -> b+1) . counts . factorize
   where
     counts :: Eq a => [a] -> [(a,Int)]
     counts xs = map (\x -> (x, (count x xs))) $ uniqueElements xs

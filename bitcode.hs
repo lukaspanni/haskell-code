@@ -59,8 +59,18 @@ decode t ls = decode' t (decodeC t ls)
 simplerDecode :: Tree -> [Code] -> [Char]
 simplerDecode t ls = decodeI t t ls
   where
-    decodeI t _ [] = []
+    decodeI t (Leaf c) [] = [c]
     decodeI t (Leaf c) ls = c:(decodeI t t ls)
     decodeI t (Node l r) (x:xs)
       | x == One = decodeI t r xs
-      | otherwise = decodeI t l xs 
+      | otherwise = decodeI t l xs
+
+
+evenSimplerDecode :: Tree -> [Code] -> [Char]
+evenSimplerDecode t ls = decode' t ls
+  where
+    decode' (Leaf c) [] = [c]
+    decode' (Leaf c) ls = c:(decode' t ls)
+    decode' (Node l r) (x:xs)
+      | x == One = decode' r xs
+      | otherwise = decode' l xs

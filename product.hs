@@ -38,7 +38,7 @@ hasDuplicateNames :: ProductList -> Bool
 hasDuplicateNames ((x,_,_):xs)
   | null xs = False
   | length (filter (\(y,_,_) -> y==x) xs) > 0 = True
-  | otherwise = False || hasDuplicateNames xs
+  | otherwise = hasDuplicateNames xs
 
 --hasDuplicateNames xs = not (names == (removeDuplicates names)) 
 --  where

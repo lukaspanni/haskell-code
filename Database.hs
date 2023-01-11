@@ -41,13 +41,11 @@ removeDuplicates (x:xs)
 hasNoDuplicates xs = xs == removeDuplicates xs
 
 valid :: DB -> Bool
-valid xs = (hasNoDuplicates (map (\(n,_,_) -> n) xs)) && (hasNoDuplicates (map (\(_,i,_) -> i) xs))&& (all [hasNoDuplicates c | (_,_,c) <- xs])
+valid xs = (hasNoDuplicates (map (\(n,_,_) -> n) xs)) && (hasNoDuplicates (map (\(_,i,_) -> i) xs)) && (all [hasNoDuplicates c | (_,_,c) <- xs])
   where
     all [y] = y == True
-    all (y:ys)
-      | y == True = True && (all ys)
-      | otherwise = False
-
+    all (False:ys) = False 
+    all (_:ys) = all ys
 
 
 -- EXTENSION TO TASK 0

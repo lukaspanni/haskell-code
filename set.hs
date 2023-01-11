@@ -41,9 +41,7 @@ difference (Set s1) (Set s2) = (Set [x | x <- s1, not $ elem x s2 ])
 
 toSet :: Eq a => [a] -> Set a 
 toSet [] = Empty
-toSet ls
-  | hasDuplicates ls = Set (removeDuplicates ls)
-  | otherwise = Set ls
+toSet ls = Set (removeDuplicates ls)
 
 hasDuplicates ls = (removeDuplicates ls) /= ls
 removeDuplicates [] = []
