@@ -71,26 +71,65 @@ llast (Node v n) = case n of
   Null -> Just v
   node -> llast node
 
-type Dict a = [(String, a)] 
+lappend Null n = n
+lappend (Node v next) n 
+  | next == Null = Node v n
+  | otherwise = Node v (lappend next n)
 
-testDict = [([chr x], x) | x <- [65..90]]
+lreverse Null = Null
+lreverse (Node v next) = lappend (lreverse next) (Node v Null)
+
+
+type Dict a = List (String, a)
+
+testDict = fromList [([chr x], x) | x <- [65..90]]
+
 
 dlookup :: String -> Dict a -> Maybe a
 dlookup s d = case d of 
-  [] -> do {fail "Not found";}
-  ((k,v):xs) -> do
+  Null -> do {fail "Not found";}
+  (Node (k,v) ls) -> do
     if k == s then return v
-    else dlookup s xs
+    else dlookup s ls
+
+dfilter :: (String -> Bool) -> Dict a -> Dict a
+dfilter p = lfilter (\(k,v) -> p k) 
 
 
-dupdate :: String -> a -> Dict a -> Dict a
-dupdate s v [] = []
-dupdate s v ((k,v1):xs)
-  | s == k = (k,v):xs
-  | otherwise = (k,v1):(dupdate s v xs)
+dmap :: ((String, a) -> (String, a)) -> Dict a -> Dict a
+dmap = lmap
+
 
 dremove :: String -> Dict a -> Dict a
-dremove s [] = []
-dremove s ((k,v):xs)
-  | s == k = xs
-  | otherwise = (k,v):(dremove s xs)
+dremove s = dfilter (/=s) 
+
+dupdate :: String -> a -> Dict a -> Dict a
+dupdate s n = dmap (\(k,v) -> if k ==s then (k,n) else (k,v))
+
+
+dinsert :: String -> a -> Dict a -> Dict a
+dinsert s n Null = Node (s,n) Null
+dinsert s n (Node (k,v) ls) = Node (k,v) (dinsert s n ls)
+
+dUpdateOrInsert :: String -> a -> Dict a -> Dict a
+dUpdateOrInsert s n ls = let contains = dlookup s ls
+  in case contains of 
+     Nothing -> dinsert s n ls
+     Just v -> dupdate s n ls
+
+--should be equal
+testDict2 = foldl (\z -> \x -> uncurry dUpdateOrInsert x z) testDict $ map (\x -> ([chr x], x)) [97..(97+25)]
+testDict3 = foldr (uncurry dUpdateOrInsert) testDict $ reverse $ map (\x -> ([chr x], x)) [97..(97+25)]
+
+
+
+
+pascal n k
+  | k >= n = 1 
+  | k == 0 = 1
+  | otherwise = pascal (n-1) k + pascal (n-1) (k-1)
+
+
+printPascal n
+  | n < 1 = print "at least one row has to be printed!"
+  | otherwise = putStr $ foldl (\z (x,ys) -> z ++ (foldl (\z1 y -> z1 ++ (show (pascal x y) ++ " ")) "" ys) ++ "\n") "" $ map (\x -> (x, [0..x]) ) [0..n]
