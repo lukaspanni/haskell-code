@@ -1,3 +1,5 @@
+import Test.QuickCheck
+
 isPrime x
   | x == 1 = True
   | otherwise = isNotDividable x (x-1)
@@ -42,3 +44,25 @@ getNumberOfDividers = foldl (*) 1 . map (\(a,b) -> b+1) . counts . factorize
     count x xs = length $ filter (==x) xs
     uniqueElements [] = []
     uniqueElements (x:xs) = if elem x xs then uniqueElements xs else x:(uniqueElements xs)
+
+
+
+--- easier implementations
+dividers n = [d | d <- [1..n `div` 2], n `mod` d == 0]
+isPrime2 n = length (dividers n) == 1
+
+primeFactors n = [p | p <- dividers n, isPrime2 p]
+
+factorize2 x 
+  | x == 0 = []
+  | isPrime x = [x]
+  | otherwise = sort $ factorize' x (primeFactors x) 
+  where
+    factorize' :: Int -> [Int] -> [Int]
+    factorize' 1 _ = []
+    factorize' x (p:ps) 
+      | x `mod` p == 0 = p: (factorize' (x `div` p) (p:ps))
+      | otherwise = factorize' x ps
+
+
+factorizeProp n = if n < 1 then True else (foldl (*) 1 $ factorize2 n) == n
