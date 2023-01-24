@@ -22,6 +22,10 @@ retrieve t c = [cc | (x,cd) <- t, x==c, cc <- cd]
 
 
 retrieve' t c = (map (\(c,code) -> code) $ filter (\(c1,_) -> c1 == c) t)!!0
+retrieve'' [] c = []
+retrieve'' ((c1,cd):cs) c 
+  | c1 == c = cd
+  | otherwise = retrieve cs c 
 
 
 encode :: Tree -> [Char] -> [Code]
@@ -34,6 +38,7 @@ encode' t = flatten . map (retrieve (codeTable t))
     flatten (x:xs) = x++(flatten xs)
 
 encode'' t = foldl (\z -> \c -> z ++ (retrieve (codeTable t) c)) [] 
+encode''' t cs = foldl (++) [] $ map (retrieve (codeTable t)) cs
 
 valid :: Tree -> Bool
 valid t = hasNoDups $ [c | (c,_) <- codeTable t]
