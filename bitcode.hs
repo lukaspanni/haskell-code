@@ -11,6 +11,11 @@ codeTable (Node l r) =
       tabler = codeTable r
   in (map (\(c,cd) -> (c, Zero:cd)) tablel ++ map (\(c,cd) -> (c, One:cd)) tabler)
 
+codeTable' :: Tree -> Table
+codeTable' (Node l r) = (codeTable'' [Zero] l) ++ (codeTable'' [One] r)
+  where 
+    codeTable'' cd (Leaf c) = [(c,cd)]
+    codeTable'' cd (Node l r) = (codeTable'' (cd ++ [Zero]) l) ++ (codeTable'' (cd ++ [One]) r)  
 
 t1 = Node (Leaf 'a') (Node (Leaf 'b') (Leaf 'c'))
 
@@ -38,7 +43,7 @@ encode' t = flatten . map (retrieve (codeTable t))
     flatten (x:xs) = x++(flatten xs)
 
 encode'' t = foldl (\z -> \c -> z ++ (retrieve (codeTable t) c)) [] 
-encode''' t cs = foldl (++) [] $ map (retrieve (codeTable t)) cs
+encode''' t  = foldl (++) [] . map (retrieve (codeTable t))
 
 valid :: Tree -> Bool
 valid t = hasNoDups $ [c | (c,_) <- codeTable t]

@@ -22,12 +22,22 @@ decProduct ls n = (all, zeroStock)
     all = [if n1==n then (n,s-1,p) else (n1,s,p) | (n1,s,p) <- ls]
     zeroStock = filter (\(n1,s,p) -> s==0) all
 
+decProduct' ls n = (updated, filter (\(_,s,_) -> s == 0) updated)
+  where
+    updated = update ls n
+    update [] _ = []
+    update ((n1,s,p):ps) n
+      | n == n1 = (n1, s-1, p):ps 
+      | otherwise = (n1, s, p):(update ps n)
+
 updatePrice :: ProductName -> ProductPrice -> ProductList -> ProductList
 updatePrice n p ls = map (upPrice n p) ls
   where
     upPrice n p (x1,x2,x3)
       | n == x1 = (x1,x2,p)
       | otherwise = (x1,x2,x3)
+
+updatePrice' n p ls = map (\(n1,s,p1) -> if n1 == n then (n1,s,p) else (n1,s,p1)) ls
 
 removeDuplicates [] = []
 removeDuplicates (x:xs)
@@ -39,6 +49,14 @@ hasDuplicateNames ((x,_,_):xs)
   | null xs = False
   | length (filter (\(y,_,_) -> y==x) xs) > 0 = True
   | otherwise = hasDuplicateNames xs
+
+hasDuplicateNames' [] = False
+hasDuplicateNames' ((n,_,_):xs)
+  | hasName n xs = True 
+  | otherwise = hasDuplicateNames xs
+  where
+    hasName n [] = False
+    hasName n ((n1,_,_):xs) = if n1 == n then True else hasName n xs
 
 --hasDuplicateNames xs = not (names == (removeDuplicates names)) 
 --  where

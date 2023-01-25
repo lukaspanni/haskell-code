@@ -42,7 +42,12 @@ unique (x:xs)
   | elem x xs = unique xs
   | otherwise = x:(unique xs)
 
-count x xs = foldl (\z y -> if y == x then z + 1 else z + 0 ) 0 xs
+count x = foldl (\z y -> if y == x then z + 1 else z + 0 ) 0
+count' x = length . filter (==x) 
+count'' x [] = 0
+count'' x (y:ys)
+  | x == y = 1 + (count x ys)
+  | othrwise = count x ys
 
 flatten [] = []
 flatten (x:xs) = x ++ (flatten xs)
